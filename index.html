@@ -488,8 +488,18 @@
 						});
 
 						if (next === 'end') {
-							console.log(JSON.stringify(userSelections)); // This will log the selections to the console
-							// Here you would implement the code to send this data to your server or database
+							console.log(JSON.stringify(userSelections));
+							// Send data to Google Apps Script
+							fetch('https://script.google.com/macros/s/AKfycbwdWiTR_RSi7A371yo4FUPRK_o6Aa4Y6pJ-JbAUI0_58qIHLcKbpOh53vi06GiX_TSSVw/exec', {
+								method: 'POST',
+								mode: 'no-cors',
+								headers: {
+									'Content-Type': 'application/json',
+								},
+								body: JSON.stringify(userSelections)
+							})
+							.then(response => console.log('Data sent successfully'))
+							.catch(error => console.error('Error:', error));
 						}
 
 						displayQuestion(next);
