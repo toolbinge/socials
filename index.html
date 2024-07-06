@@ -420,11 +420,13 @@
             }
         };
 
-        function showChatPreview() {
-            setTimeout(() => {
-                chatPreview.style.display = 'block';
-            }, 2000);
-        }
+		function showChatPreview() {
+			if (!isChatOpen) {
+				setTimeout(() => {
+					chatPreview.style.display = 'block';
+				}, 2000);
+			}
+		}
 
 		function toggleChat() {
 					if (isChatOpen) {
@@ -434,7 +436,7 @@
 						chatbox.style.display = 'flex';
 						isChatOpen = true;
 						chatPreview.style.display = 'none';
-						if (currentStep === 'start') {
+						if (messages.children.length === 0) {
 							displayQuestion('start');
 						}
 					}
@@ -478,12 +480,9 @@
 				}
 
 				// Event listeners
-				chatBubble.addEventListener('click', toggleChat);
-
-				document.addEventListener('click', function(event) {
-					if (isChatOpen && !chatbox.contains(event.target) && event.target !== chatBubble) {
-						toggleChat();
-					}
+				chatBubble.addEventListener('click', function(event) {
+					event.stopPropagation();
+					toggleChat();
 				});
 
 				// Start the chat preview when the page loads
