@@ -151,29 +151,29 @@
             color: #a04b00;
         }
 
-		.chat-bubble {
-			position: fixed;
-			bottom: 20px;
-			right: 20px;
-			width: 60px;
-			height: 60px;
-			border-radius: 50%;
-			background-color: #be5900;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			cursor: pointer;
-			z-index: 1000;
-			overflow: hidden;  /* This ensures the image is cropped to the circle */
-		}
+        .chat-bubble {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #be5900;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1000;
+            overflow: hidden;
+        }
 
-		.chat-bubble img {
-			width: 100%;  /* Make the image fill the bubble */
-			height: 100%;
-			object-fit: cover;  /* This scales the image to cover the area */
-			object-position: center;  /* This centers the image */
-			transform: scale(1.01);  /* This scales up the image. Adjust as needed */
-}
+        .chat-bubble img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            transform: scale(1.5);
+        }
 
         .chat-preview {
             position: fixed;
@@ -209,10 +209,28 @@
             flex-grow: 1;
             overflow-y: auto;
             margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
         }
 
         #messages div {
             margin-bottom: 10px;
+            max-width: 80%;
+        }
+
+        #messages .user-message {
+            align-self: flex-end;
+            background-color: #a04b00;
+            color: #171717;
+            padding: 5px 10px;
+            border-radius: 10px;
+        }
+
+        #messages .bot-message {
+            align-self: flex-start;
+            background-color: #171717;
+            padding: 5px 10px;
+            border-radius: 10px;
         }
 
         #options {
@@ -294,6 +312,7 @@
         const options = document.getElementById('options');
         let currentStep = 'start';
         let userSelections = [];
+        let isChatOpen = false;
 
         const conversationFlow = {
             start: {
@@ -407,125 +426,142 @@
             }, 2000);
         }
 
-        function startConversation() {
-            chatbox.style.display = 'flex';
-            chatPreview.style.display = 'none';
-            displayQuestion('start');
-        }
+		function toggleChat() {
+					if (isChatOpen) {
+						chatbox.style.display = 'none';
+						isChatOpen = false;
+					} else {
+						chatbox.style.display = 'flex';
+						isChatOpen = true;
+						chatPreview.style.display = 'none';
+						if (currentStep === 'start') {
+							displayQuestion('start');
+						}
+					}
+				}
 
-        function displayQuestion(key) {
-            currentStep = key;
-            const step = conversationFlow[key];
-            addMessage('Toolbinge: ' + step.question);
-            
-            options.innerHTML = '';
-            step.answers.forEach(answer => {
-                const button = document.createElement('button');
-                button.innerText = answer.text;
-                button.onclick = () => selectAnswer(answer.next, answer.text);
-                options.appendChild(button);
-            });
-        }
+				function displayQuestion(key) {
+					currentStep = key;
+					const step = conversationFlow[key];
+					addMessage('Toolbinge: ' + step.question, 'bot');
 
-        function selectAnswer(next, answer) {
-            userSelections.push({
-                question: conversationFlow[currentStep].question,
-                answer: answer
-            });
-            
-			if (next === 'end') {
-                console.log(JSON.stringify(userSelections)); // This will log the selections to the console
-                // Here you would implement the code to send this data to your server or database
-            }
-            
-            displayQuestion(next);
-        }
+					options.innerHTML = '';
+					step.answers.forEach(answer => {
+						const button = document.createElement('button');
+						button.innerText = answer.text;
+						button.onclick = () => selectAnswer(answer.next, answer.text);
+						options.appendChild(button);
+					});
+				}
 
-        function addMessage(message) {
-            const messageElement = document.createElement('div');
-            messageElement.innerText = message;
-            messages.appendChild(messageElement);
-        }
+				function selectAnswer(next, answer) {
+					addMessage('You: ' + answer, 'user');
+					userSelections.push({
+						question: conversationFlow[currentStep].question,
+						answer: answer
+					});
 
-        // Event listeners
-        chatBubble.addEventListener('click', startConversation);
+					if (next === 'end') {
+						console.log(JSON.stringify(userSelections)); // This will log the selections to the console
+						// Here you would implement the code to send this data to your server or database
+					}
 
-        // Start the chat preview when the page loads
-        window.onload = showChatPreview;
-    </script>
+					displayQuestion(next);
+				}
 
-    <script src="https://cdn.jsdelivr.net/npm/share-buttons/dist/share-buttons.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var shareButton = document.getElementById('shareButton');
-            var shareModal = document.createElement('div');
-            shareModal.className = 'share-modal';
-            shareModal.innerHTML = `
-                <div class="share-modal-content">
-                    <span class="close">&times;</span>
-                    <h2 style="color: #be5900;">Share Toolbinge</h2>
-                    <button class="share-option" data-share="facebook">Share on Facebook</button>
-                    <button class="share-option" data-share="twitter">Share on Twitter</button>
-                    <button class="share-option" data-share="linkedin">Share on LinkedIn</button>
-                    <button class="share-option" data-share="whatsapp">Share on WhatsApp</button>
-                    <button class="share-option" data-share="messenger">Share on Messenger</button>
-                    <button class="share-option" data-share="snapchat">Share on Snapchat</button>
-                    <button class="share-option" data-share="email">Share via Email</button>
-                </div>
-            `;
-            document.body.appendChild(shareModal);
+				function addMessage(message, sender) {
+					const messageElement = document.createElement('div');
+					messageElement.innerText = message;
+					messageElement.className = sender + '-message';
+					messages.appendChild(messageElement);
+					messages.scrollTop = messages.scrollHeight;
+				}
 
-            shareButton.addEventListener('click', function() {
-                shareModal.style.display = 'block';
-            });
+				// Event listeners
+				chatBubble.addEventListener('click', toggleChat);
 
-            shareModal.querySelector('.close').addEventListener('click', function() {
-                shareModal.style.display = 'none';
-            });
+				document.addEventListener('click', function(event) {
+					if (isChatOpen && !chatbox.contains(event.target) && event.target !== chatBubble) {
+						toggleChat();
+					}
+				});
 
-            window.addEventListener('click', function(event) {
-                if (event.target == shareModal) {
-                    shareModal.style.display = 'none';
-                }
-            });
+				// Start the chat preview when the page loads
+				window.onload = showChatPreview;
+			</script>
 
-            var shareOptions = shareModal.querySelectorAll('.share-option');
-            shareOptions.forEach(function(option) {
-                option.addEventListener('click', function() {
-                    var platform = this.getAttribute('data-share');
-                    var url = encodeURIComponent(window.location.href);
-                    var text = encodeURIComponent("Check out Toolbinge!");
-                    var shareUrl;
+			<script src="https://cdn.jsdelivr.net/npm/share-buttons/dist/share-buttons.js"></script>
+			<script>
+				document.addEventListener('DOMContentLoaded', function() {
+					var shareButton = document.getElementById('shareButton');
+					var shareModal = document.createElement('div');
+					shareModal.className = 'share-modal';
+					shareModal.innerHTML = `
+						<div class="share-modal-content">
+							<span class="close">&times;</span>
+							<h2 style="color: #be5900;">Share Toolbinge</h2>
+							<button class="share-option" data-share="facebook">Share on Facebook</button>
+							<button class="share-option" data-share="twitter">Share on Twitter</button>
+							<button class="share-option" data-share="linkedin">Share on LinkedIn</button>
+							<button class="share-option" data-share="whatsapp">Share on WhatsApp</button>
+							<button class="share-option" data-share="messenger">Share on Messenger</button>
+							<button class="share-option" data-share="snapchat">Share on Snapchat</button>
+							<button class="share-option" data-share="email">Share via Email</button>
+						</div>
+					`;
+					document.body.appendChild(shareModal);
 
-                    switch(platform) {
-                        case 'facebook':
-                            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-                            break;
-                        case 'twitter':
-                            shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
-                            break;
-                        case 'linkedin':
-                            shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=${text}`;
-                            break;
-                        case 'whatsapp':
-                            shareUrl = `https://wa.me/?text=${text} ${url}`;
-                            break;
-                        case 'messenger':
-                            shareUrl = `https://www.facebook.com/dialog/send?link=${url}&app_id=YOUR_FACEBOOK_APP_ID&redirect_uri=${url}`;
-                            break;
-                        case 'snapchat':
-                            shareUrl = `https://snapchat.com/scan?attachmentUrl=${url}`;
-                            break;
-                        case 'email':
-                            shareUrl = `mailto:?subject=${text}&body=${url}`;
-                            break;
-                    }
+					shareButton.addEventListener('click', function() {
+						shareModal.style.display = 'block';
+					});
 
-                    window.open(shareUrl, '_blank');
-                    shareModal.style.display = 'none';
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+					shareModal.querySelector('.close').addEventListener('click', function() {
+						shareModal.style.display = 'none';
+					});
+
+					window.addEventListener('click', function(event) {
+						if (event.target == shareModal) {
+							shareModal.style.display = 'none';
+						}
+					});
+
+					var shareOptions = shareModal.querySelectorAll('.share-option');
+					shareOptions.forEach(function(option) {
+						option.addEventListener('click', function() {
+							var platform = this.getAttribute('data-share');
+							var url = encodeURIComponent(window.location.href);
+							var text = encodeURIComponent("Check out Toolbinge!");
+							var shareUrl;
+
+							switch(platform) {
+								case 'facebook':
+									shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+									break;
+								case 'twitter':
+									shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
+									break;
+								case 'linkedin':
+									shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=${text}`;
+									break;
+								case 'whatsapp':
+									shareUrl = `https://wa.me/?text=${text} ${url}`;
+									break;
+								case 'messenger':
+									shareUrl = `https://www.facebook.com/dialog/send?link=${url}&app_id=YOUR_FACEBOOK_APP_ID&redirect_uri=${url}`;
+									break;
+								case 'snapchat':
+									shareUrl = `https://snapchat.com/scan?attachmentUrl=${url}`;
+									break;
+								case 'email':
+									shareUrl = `mailto:?subject=${text}&body=${url}`;
+									break;
+							}
+
+							window.open(shareUrl, '_blank');
+							shareModal.style.display = 'none';
+						});
+					});
+				});
+			</script>
+		</body>
+		</html>
