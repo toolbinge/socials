@@ -568,7 +568,6 @@
 						});
 					});
 				</script>
-				<!-- Place this script just before the closing </body> tag -->
 				<script>
 					document.addEventListener('DOMContentLoaded', function() {
 						const chatBubble = document.getElementById('chatBubble');
@@ -633,9 +632,11 @@
 							if (next === 'end') {
 								console.log(JSON.stringify(userSelections));
 								// Here you would implement the code to send this data to your server or database
+								addMessage('Toolbinge: ' + conversationFlow[next].question, 'bot');
+								options.innerHTML = ''; // Clear options at the end
+							} else {
+								displayQuestion(next);
 							}
-
-							displayQuestion(next);
 						}
 
 						function addMessage(message, sender) {
