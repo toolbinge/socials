@@ -580,40 +580,33 @@
 		  });
 		}
 
-		function selectAnswer(next, answer) {
+		async function selectAnswer(next, answer) {
 		  addMessage('You: ' + answer, 'user');
 		  userSelections.push({
 			question: conversationFlow[currentStep].question,
 			answer: answer
 		  });
 
-		  // Get the key versions of the current question and answer
 		  const questionKey = questionKeyMap[conversationFlow[currentStep].question];
 		  const answerKey = answerKeyMap[answer];
 
-		  // Update Firebase with the selected answer using a transaction
-		  const questionRef = ref(database, `/questions/${questionKey}/${answerKey}`);
-		  const submissionRef = ref(database, `/submissions/${questionKey}`);
+		  try {
+			const questionRef = ref(database, `/questions/${questionKey}/${answerKey}`);
+			const submissionRef = ref(database, `/submissions/${questionKey}`);
 
-		  runTransaction(questionRef, (currentValue) => {
-			return (currentValue || 0) + 1;
-		  }).then(() => console.log('Question data updated successfully'))
-			.catch((error) => console.error('Error updating question data:', error));
+			await runTransaction(questionRef, (currentValue) => (currentValue || 0) + 1);
+			await runTransaction(submissionRef, (currentValue) => (currentValue || 0) + 1);
 
-		  runTransaction(submissionRef, (currentValue) => {
-			return (currentValue || 0) + 1;
-		  }).then(() => console.log('Submission data updated successfully'))
-			.catch((error) => console.error('Error updating submission data:', error));
+			console.log('Data updated successfully');
 
-		  if (next === 'end') {
-			// Increment total submissions when the conversation ends
-			const totalRef = ref(database, '/submissions/total');
-			runTransaction(totalRef, (currentValue) => {
-			  return (currentValue || 0) + 1;
-			}).then(() => console.log('Total submissions incremented'))
-			  .catch((error) => console.error('Error incrementing total submissions:', error));
-
-			console.log(JSON.stringify(userSelections));
+			if (next === 'end') {
+			  const totalRef = ref(database, '/submissions/total');
+			  await runTransaction(totalRef, (currentValue) => (currentValue || 0) + 1);
+			  console.log('Total submissions incremented');
+			  console.log(JSON.stringify(userSelections));
+			}
+		  } catch (error) {
+			console.error('Error updating data:', error);
 		  }
 
 		  displayQuestion(next);
