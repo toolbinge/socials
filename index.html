@@ -591,18 +591,26 @@
 		  const questionKey = questionKeyMap[conversationFlow[currentStep].question];
 		  const answerKey = answerKeyMap[answer];
 
-		  // Update Firebase with the selected answer
-		  const updates = {};
-		  updates[`/questions/${questionKey}/${answerKey}`] = increment(1);
-		  updates[`/submissions/${questionKey}`] = increment(1);
-		  update(ref(database), updates)
-			.then(() => console.log('Data updated successfully'))
-			.catch((error) => console.error('Error updating data:', error));
+		  // Update Firebase with the selected answer using a transaction
+		  const questionRef = ref(database, `/questions/${questionKey}/${answerKey}`);
+		  const submissionRef = ref(database, `/submissions/${questionKey}`);
+
+		  runTransaction(questionRef, (currentValue) => {
+			return (currentValue || 0) + 1;
+		  }).then(() => console.log('Question data updated successfully'))
+			.catch((error) => console.error('Error updating question data:', error));
+
+		  runTransaction(submissionRef, (currentValue) => {
+			return (currentValue || 0) + 1;
+		  }).then(() => console.log('Submission data updated successfully'))
+			.catch((error) => console.error('Error updating submission data:', error));
 
 		  if (next === 'end') {
 			// Increment total submissions when the conversation ends
-			update(ref(database, '/submissions/total'), { increment: 1 })
-			  .then(() => console.log('Total submissions incremented'))
+			const totalRef = ref(database, '/submissions/total');
+			runTransaction(totalRef, (currentValue) => {
+			  return (currentValue || 0) + 1;
+			}).then(() => console.log('Total submissions incremented'))
 			  .catch((error) => console.error('Error incrementing total submissions:', error));
 
 			console.log(JSON.stringify(userSelections));
