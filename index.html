@@ -283,7 +283,7 @@
 <body>
     <button id="shareButton" class="share-button">Share</button>
     <div class="container">
-        <h1>Toolbinge.</h1>
+        <h1>Toolbinge..</h1>
         <div class="image-link">
             <a href="https://x.com/Toolbinge" target="_blank">
                 <img src="X_icon_2.svg.png" alt="X">
@@ -329,10 +329,11 @@
         <div id="options"></div>
     </div>
 
-    <!-- Firebase SDK -->
+	
+	<!-- Firebase SDK -->
 <script type="module">
 	  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-	  import { getDatabase, ref, increment, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+	  import { getDatabase, ref, set, increment } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 	  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-analytics.js";
 
 	  const firebaseConfig = {
@@ -401,7 +402,6 @@
 		  "Rivers/Lakes": "Rivers_Lakes",
 		  "Fields": "Fields",
 		  "Clubs": "Clubs",
-		  "Beaches": "Beaches",
 		  "Parks": "Parks",
 		  "Sporting events": "Sporting_events",
 		  "Bus": "Bus",
@@ -594,14 +594,14 @@
 			const questionRef = ref(database, `/questions/${questionKey}/${answerKey}`);
 			const submissionRef = ref(database, `/submissions/${questionKey}`);
 
-			await runTransaction(questionRef, (currentValue) => (currentValue || 0) + 1);
-			await runTransaction(submissionRef, (currentValue) => (currentValue || 0) + 1);
+			await set(questionRef, increment(1));
+			await set(submissionRef, increment(1));
 
 			console.log('Data updated successfully');
 
 			if (next === 'end') {
 			  const totalRef = ref(database, '/submissions/total');
-			  await runTransaction(totalRef, (currentValue) => (currentValue || 0) + 1);
+			  await set(totalRef, increment(1));
 			  console.log('Total submissions incremented');
 			  console.log(JSON.stringify(userSelections));
 			}
@@ -641,7 +641,7 @@
 	  });
 	</script>
 
-	<script src="https://cdn.jsdelivr.net/npm/share-buttons/dist/share-buttons.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/share-buttons/dist/share-buttons.js"></script>
 	<script>
 	  document.addEventListener('DOMContentLoaded', function() {
 		var shareButton = document.getElementById('shareButton');
