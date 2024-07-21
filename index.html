@@ -279,9 +279,6 @@
             background-color: #2a2a2a;
         }
     </style>
-    <link rel="icon" type="image/png" sizes="32x32" href="site_logo-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="site_logo-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="site_logo-180x180.png">
 </head>
 <body>
     <button id="shareButton" class="share-button">Share</button>
@@ -332,413 +329,510 @@
         <div id="options"></div>
     </div>
 
-    <script>
-        // Conversation flow
-        const conversationFlow = {
-          start: {
-            question: "What type of content makes you cum the hardest?",
-            answers: [
-              { text: "Public fun", next: "public_fun" },
-              { text: "Throat fuck", next: "throat_fuck" },
-              { text: "Bareback", next: "bareback" },
-              { text: "Cumshots", next: "cumshots" },
-            ]
-          },
-          public_fun: {
-            question: "What kind of public fun turns you on the most?",
-            answers: [
-              { text: "Nature", next: "nature" },
-              { text: "Crowds", next: "crowds" },
-              { text: "Public transport", next: "public_transport" },
-              { text: "Beaches", next: "beaches" }
-            ]
-          },
-          throat_fuck: {
-            question: "What aspect of throat fucking excites you?",
-            answers: [
-              { text: "Gagging sounds", next: "preferences" },
-              { text: "Deepthroat", next: "preferences" },
-              { text: "Face fucking", next: "preferences" },
-              { text: "Throat bulge", next: "preferences" }
-            ]
-          },
-          bareback: {
-            question: "What's your favorite part of bareback action?",
-            answers: [
-              { text: "Raw feeling", next: "preferences" },
-              { text: "Creampies", next: "preferences" },
-              { text: "Breeding", next: "preferences" },
-              { text: "Seed swapping", next: "preferences" }
-            ]
-          },
-          cumshots: {
-            question: "Where do you prefer to see cumshots?",
-            answers: [
-              { text: "Face", next: "preferences" },
-              { text: "Chest", next: "preferences" },
-              { text: "Ass", next: "preferences" },
-              { text: "Mouth", next: "preferences" }
-            ]
-          },
-          nature: {
-            question: "What natural setting gets you most excited?",
-            answers: [
-              { text: "Forests", next: "preferences" },
-              { text: "Mountains", next: "preferences" },
-              { text: "Rivers/Lakes", next: "preferences" },
-              { text: "Fields", next: "preferences" }
-            ]
-          },
-          crowds: {
-            question: "What crowded place turns you on the most?",
-            answers: [
-              { text: "Clubs", next: "preferences" },
-              { text: "Beaches", next: "preferences" },
-              { text: "Parks", next: "preferences" },
-              { text: "Sporting events", next: "preferences" }
-            ]
-          },
-          public_transport: {
-            question: "Which form of public transport excites you most?",
-            answers: [
-              { text: "Bus", next: "preferences" },
-              { text: "Train", next: "preferences" },
-              { text: "Subway", next: "preferences" },
-              { text: "Airplane", next: "preferences" }
-            ]
-          },
-          beaches: {
-            question: "What's your favorite beach activity?",
-            answers: [
-              { text: "Sunbathing nude", next: "preferences" },
-              { text: "Skinny dipping", next: "preferences" },
-              { text: "Cruising", next: "preferences" },
-              { text: "Beach sex", next: "preferences" }
-            ]
-          },
-          preferences: {
-            question: "What's your preferred video length?",
-            answers: [
-              { text: "Short clips (1-3 mins)", next: "frequency" },
-              { text: "Medium (5-10 mins)", next: "frequency" },
-              { text: "Long (15+ mins)", next: "frequency" },
-              { text: "Full scenes (30+ mins)", next: "frequency" }
-            ]
-          },
-  frequency: {
-            question: "How often do you use X?",
-            answers: [
-              { text: "Daily", next: "platforms" },
-              { text: "A few times a week", next: "platforms" },
-              { text: "Weekly", next: "platforms" },
-              { text: "Less often", next: "platforms" }
-            ]
-          },
-          platforms: {
-            question: "Where do you prefer to watch content?",
-            answers: [
-              { text: "OnlyFans", next: "end" },
-              { text: "JustForFans", next: "end" },
-              { text: "Twitter/X", next: "end" },
-              { text: "Tube sites", next: "end" }
-            ]
-          },
-          end: {
-            question: "Thanks for your input! It helps me create better content for you. Feel free to explore my profiles for more hot action!",
-            answers: []
-          }
-        };
+	
+	<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+  import { getDatabase, ref, set, increment } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-analytics.js";
 
-        // Chatbot functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const chatBubble = document.getElementById('chatBubble');
-            const chatPreview = document.getElementById('chatPreview');
-            const chatbox = document.getElementById('chatbox');
-            const messages = document.getElementById('messages');
-            const options = document.getElementById('options');
-            let currentStep = 'start';
-            let isChatOpen = false;
-            let isChatOpened = false;
-            let userSelections = [];
+  const firebaseConfig = {
+    apiKey: "AIzaSyDqxLlCOORTmcxCdKtou4zKJudQRs8zTZg",
+    authDomain: "toolbinge-log.firebaseapp.com",
+    projectId: "toolbinge-log",
+    storageBucket: "toolbinge-log.appspot.com",
+    messagingSenderId: "850284736934",
+    appId: "1:850284736934:web:1615930d17979b23c39f67",
+    measurementId: "G-KBX7C0XS8E"
+  };
 
-            function showChatPreview() {
-                if (!isChatOpen) {
-                    setTimeout(() => {
-                        chatPreview.style.display = 'block';
-                    }, 2000);
-                }
-            }
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const database = getDatabase(app);
 
-            function toggleChat() {
-                if (isChatOpen) {
-                    chatbox.style.display = 'none';
-                    isChatOpen = false;
-                } else {
-                    chatbox.style.display = 'flex';
-                    isChatOpen = true;
-                    chatPreview.style.display = 'none';
-                    if (messages.children.length === 0) {
-                        displayQuestion('start');
-                    }
-                }
-            }
+  document.addEventListener('DOMContentLoaded', function() {
+    const chatBubble = document.getElementById('chatBubble');
+    const chatPreview = document.getElementById('chatPreview');
+    const chatbox = document.getElementById('chatbox');
+    const messages = document.getElementById('messages');
+    const options = document.getElementById('options');
+    let currentStep = 'start';
+    let userSelections = [];
+    let isChatOpen = false;
+    let isChatOpened = false;
 
-            function displayQuestion(key) {
-                currentStep = key;
-                const step = conversationFlow[key];
-                addMessage('Toolbinge: ' + step.question, 'bot');
+    const questionKeyMap = {
+      "What type of content makes you cum the hardest?": "What_type_of_content_makes_you_cum_the_hardest",
+      "What kind of public fun turns you on the most?": "What_kind_of_public_fun_turns_you_on_the_most",
+      "What aspect of throat fucking excites you?": "What_aspect_of_throat_fucking_excites_you",
+      "What's your favorite part of bareback action?": "What's_your_favorite_part_of_bareback_action",
+      "Where do you prefer to see cumshots?": "Where_do_you_prefer_to_see_cumshots",
+      "What natural setting gets you most excited?": "What_natural_setting_gets_you_most_excited",
+      "What crowded place turns you on the most?": "What_crowded_place_turns_you_on_the_most",
+      "Which form of public transport excites you most?": "Which_form_of_public_transport_excites_you_most",
+      "What's your favorite beach activity?": "What's_your_favorite_beach_activity",
+      "What's your preferred video length?": "What's_your_preferred_video_length",
+      "How often do you use X?": "How_often_do_you_use_X",
+      "Where do you prefer to watch content?": "Where_do_you_prefer_to_watch_content"
+    };
 
-                options.innerHTML = '';
-                step.answers.forEach(answer => {
-                    const button = document.createElement('button');
-                    button.innerText = answer.text;
-                    button.onclick = (event) => {
-                        event.stopPropagation();
-                        selectAnswer(answer.next, answer.text);
-                    };
-                    options.appendChild(button);
-                });
-            }
+    const answerKeyMap = {
+      "Public fun": "Public_fun",
+      "Throat fuck": "Throat_fuck",
+      "Bareback": "Bareback",
+      "Cumshots": "Cumshots",
+      "Nature": "Nature",
+      "Crowds": "Crowds",
+      "Public transport": "Public_transport",
+      "Beaches": "Beaches",
+      "Gagging sounds": "Gagging_sounds",
+      "Deepthroat": "Deepthroat",
+      "Face fucking": "Face_fucking",
+      "Throat bulge": "Throat_bulge",
+      "Raw feeling": "Raw_feeling",
+      "Creampies": "Creampies",
+      "Breeding": "Breeding",
+      "Seed swapping": "Seed_swapping",
+      "Face": "Face",
+      "Chest": "Chest",
+      "Ass": "Ass",
+      "Mouth": "Mouth",
+      "Forests": "Forests",
+      "Mountains": "Mountains",
+      "Rivers/Lakes": "Rivers_Lakes",
+      "Fields": "Fields",
+      "Clubs": "Clubs",
+      "Parks": "Parks",
+      "Sporting events": "Sporting_events",
+      "Bus": "Bus",
+      "Train": "Train",
+      "Subway": "Subway",
+      "Airplane": "Airplane",
+      "Sunbathing nude": "Sunbathing_nude",
+      "Skinny dipping": "Skinny_dipping",
+      "Cruising": "Cruising",
+      "Beach sex": "Beach_sex",
+      "Short clips (1-3 mins)": "Short_clips_1_3_mins",
+      "Medium (5-10 mins)": "Medium_5_10_mins",
+      "Long (15+ mins)": "Long_15_mins",
+      "Full scenes (30+ mins)": "Full_scenes_30_mins",
+      "Daily": "Daily",
+      "A few times a week": "A_few_times_a_week",
+      "Weekly": "Weekly",
+      "Less often": "Less_often",
+      "OnlyFans": "OnlyFans",
+      "JustForFans": "JustForFans",
+      "Twitter/X": "Twitter_X",
+      "Tube sites": "Tube_sites"
+    };
 
-            function selectAnswer(next, answer) {
-                addMessage('You: ' + answer, 'user');
-                userSelections.push({
-                    question: conversationFlow[currentStep].question,
-                    answer: answer
-                });
+    const conversationFlow = {
+      start: {
+        question: "What type of content makes you cum the hardest?",
+        answers: [
+          { text: "Public fun", next: "public_fun" },
+          { text: "Throat fuck", next: "throat_fuck" },
+          { text: "Bareback", next: "bareback" },
+          { text: "Cumshots", next: "cumshots" },
+        ]
+      },
+      public_fun: {
+        question: "What kind of public fun turns you on the most?",
+        answers: [
+          { text: "Nature", next: "nature" },
+          { text: "Crowds", next: "crowds" },
+          { text: "Public transport", next: "public_transport" },
+          { text: "Beaches", next: "beaches" }
+        ]
+      },
+      throat_fuck: {
+        question: "What aspect of throat fucking excites you?",
+        answers: [
+          { text: "Gagging sounds", next: "preferences" },
+          { text: "Deepthroat", next: "preferences" },
+          { text: "Face fucking", next: "preferences" },
+          { text: "Throat bulge", next: "preferences" }
+        ]
+      },
+      bareback: {
+        question: "What's your favorite part of bareback action?",
+        answers: [
+          { text: "Raw feeling", next: "preferences" },
+          { text: "Creampies", next: "preferences" },
+          { text: "Breeding", next: "preferences" },
+          { text: "Seed swapping", next: "preferences" }
+        ]
+      },
+      cumshots: {
+        question: "Where do you prefer to see cumshots?",
+        answers: [
+          { text: "Face", next: "preferences" },
+          { text: "Chest", next: "preferences" },
+          { text: "Ass", next: "preferences" },
+          { text: "Mouth", next: "preferences" }
+        ]
+      },
+      nature: {
+        question: "What natural setting gets you most excited?",
+        answers: [
+          { text: "Forests", next: "preferences" },
+          { text: "Mountains", next: "preferences" },
+          { text: "Rivers/Lakes", next: "preferences" },
+          { text: "Fields", next: "preferences" }
+        ]
+      },
+      crowds: {
+        question: "What crowded place turns you on the most?",
+        answers: [
+          { text: "Clubs", next: "preferences" },
+          { text: "Beaches", next: "preferences" },
+          { text: "Parks", next: "preferences" },
+          { text: "Sporting events", next: "preferences" }
+        ]
+      },
+      public_transport: {
+        question: "Which form of public transport excites you most?",
+        answers: [
+          { text: "Bus", next: "preferences" },
+          { text: "Train", next: "preferences" },
+          { text: "Subway", next: "preferences" },
+          { text: "Airplane", next: "preferences" }
+        ]
+      },
+      beaches: {
+        question: "What's your favorite beach activity?",
+        answers: [
+          { text: "Sunbathing nude", next: "preferences" },
+          { text: "Skinny dipping", next: "preferences" },
+          { text: "Cruising", next: "preferences" },
+          { text: "Beach sex", next: "preferences" }
+        ]
+      },
+      preferences: {
+        question: "What's your preferred video length?",
+        answers: [
+          { text: "Short clips (1-3 mins)", next: "frequency" },
+          { text: "Medium (5-10 mins)", next: "frequency" },
+          { text: "Long (15+ mins)", next: "frequency" },
+          { text: "Full scenes (30+ mins)", next: "frequency" }
+        ]
+      },
+      frequency: {
+        question: "How often do you use X?",
+        answers: [
+          { text: "Daily", next: "platforms" },
+          { text: "A few times a week", next: "platforms" },
+          { text: "Weekly", next: "platforms" },
+          { text: "Less often", next: "platforms" }
+        ]
+      },
+      platforms: {
+        question: "Where do you prefer to watch content?",
+        answers: [
+          { text: "OnlyFans", next: "end" },
+          { text: "JustForFans", next: "end" },
+          { text: "Twitter/X", next: "end" },
+          { text: "Tube sites", next: "end" }
+        ]
+      },
+      end: {
+        question: "Thanks for your input! It helps me create better content for you. Feel free to explore my profiles for more hot action!",
+        answers: []
+      }
+    };
 
-                if (next === 'end') {
-                    console.log(JSON.stringify(userSelections));
-                }
+    function showChatPreview() {
+      if (!isChatOpen) {
+        setTimeout(() => {
+          chatPreview.style.display = 'block';
+        }, 2000);
+      }
+    }
 
-                displayQuestion(next);
-            }
-
-            function addMessage(message, sender) {
-                const messageElement = document.createElement('div');
-                messageElement.innerText = message;
-                messageElement.className = sender + '-message';
-                messages.appendChild(messageElement);
-                messages.scrollTop = messages.scrollHeight;
-            }
-
-            function sendGAEvent(category, action) {
-                if (typeof gtag === 'function') {
-                    gtag('event', action, {
-                        'event_category': category,
-                        'event_label': window.location.href
-                    });
-                }
-            }
-
-            chatBubble.addEventListener('click', function(event) {
-                event.stopPropagation();
-                toggleChat();
-
-                if (!isChatOpened) {
-                    isChatOpened = true;
-                    sendGAEvent('chatbot', 'open');
-                }
-            });
-
-            document.addEventListener('click', function(event) {
-                if (isChatOpen && !chatbox.contains(event.target) && event.target !== chatBubble) {
-                    toggleChat();
-                }
-            });
-
-            chatbox.addEventListener('click', function(event) {
-                event.stopPropagation();
-            });
-
-            showChatPreview();
-        });
-
-        // Share functionality
-        const shareButton = document.getElementById('shareButton');
-        const shareModal = document.createElement('div');
-        shareModal.className = 'share-modal';
-        shareModal.innerHTML = `
-            <div class="share-modal-content">
-                <span class="close">&times;</span>
-                <button class="share-option" data-platform="twitter">Share on Twitter</button>
-                <button class="share-option" data-platform="facebook">Share on Facebook</button>
-                <button class="share-option" data-platform="copy">Copy Link</button>
-            </div>
-        `;
-        document.body.appendChild(shareModal);
-
-        shareButton.addEventListener('click', () => {
-            shareModal.style.display = 'block';
-        });
-
-        shareModal.querySelector('.close').addEventListener('click', () => {
-            shareModal.style.display = 'none';
-        });
-
-        shareModal.addEventListener('click', (e) => {
-            if (e.target.classList.contains('share-option')) {
-                const platform = e.target.dataset.platform;
-                const url = encodeURIComponent(window.location.href);
-                const text = encodeURIComponent('Check out Toolbinge\'s exclusive content!');
-
-                let shareUrl;
-                switch (platform) {
-                    case 'twitter':
-                        shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
-                        window.open(shareUrl, '_blank');
-                        break;
-                    case 'facebook':
-                        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-                        window.open(shareUrl, '_blank');
-                        break;
-                    case 'copy':
-                        navigator.clipboard.writeText(window.location.href)
-                            .then(() => alert('Link copied to clipboard!'))
-                            .catch(err => console.error('Error copying link: ', err));
-                        break;
-                }
-
-                shareModal.style.display = 'none';
-            }
-        });
-
-        window.addEventListener('click', (e) => {
-            if (e.target === shareModal) {
-                shareModal.style.display = 'none';
-            }
-        });
-    </script>
-
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-        import { getDatabase, ref, set, increment } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-analytics.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDqxLlCOORTmcxCdKtou4zKJudQRs8zTZg",
-            authDomain: "toolbinge-log.firebaseapp.com",
-            projectId: "toolbinge-log",
-            storageBucket: "toolbinge-log.appspot.com",
-            messagingSenderId: "850284736934",
-            appId: "1:850284736934:web:1615930d17979b23c39f67",
-            measurementId: "G-KBX7C0XS8E"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const database = getDatabase(app);
-
-        const questionKeyMap = {
-            "What type of content makes you cum the hardest?": "What_type_of_content_makes_you_cum_the_hardest",
-            "What kind of public fun turns you on the most?": "What_kind_of_public_fun_turns_you_on_the_most",
-            "What aspect of throat fucking excites you?": "What_aspect_of_throat_fucking_excites_you",
-            "What's your favorite part of bareback action?": "What's_your_favorite_part_of_bareback_action",
-            "Where do you prefer to see cumshots?": "Where_do_you_prefer_to_see_cumshots",
-            "What natural setting gets you most excited?": "What_natural_setting_gets_you_most_excited",
-            "What crowded place turns you on the most?": "What_crowded_place_turns_you_on_the_most",
-            "Which form of public transport excites you most?": "Which_form_of_public_transport_excites_you_most",
-            "What's your favorite beach activity?": "What's_your_favorite_beach_activity",
-            "What's your preferred video length?": "What's_your_preferred_video_length",
-            "How often do you use X?": "How_often_do_you_use_X",
-            "Where do you prefer to watch content?": "Where_do_you_prefer_to_watch_content"
-        };
-
-        const answerKeyMap = {
-            "Public fun": "Public_fun",
-            "Throat fuck": "Throat_fuck",
-            "Bareback": "Bareback",
-            "Cumshots": "Cumshots",
-            "Nature": "Nature",
-            "Crowds": "Crowds",
-            "Public transport": "Public_transport",
-            "Beaches": "Beaches",
-            "Gagging sounds": "Gagging_sounds",
-            "Deepthroat": "Deepthroat",
-            "Face fucking": "Face_fucking",
-            "Throat bulge": "Throat_bulge",
-            "Raw feeling": "Raw_feeling",
-            "Creampies": "Creampies",
-            "Breeding": "Breeding",
-            "Seed swapping": "Seed_swapping",
-            "Face": "Face",
-            "Chest": "Chest",
-            "Ass": "Ass",
-            "Mouth": "Mouth",
-            "Forests": "Forests",
-            "Mountains": "Mountains",
-            "Rivers/Lakes": "Rivers_Lakes",
-            "Fields": "Fields",
-            "Clubs": "Clubs",
-            "Parks": "Parks",
-            "Sporting events": "Sporting_events",
-            "Bus": "Bus",
-            "Train": "Train",
-            "Subway": "Subway",
-            "Airplane": "Airplane",
-            "Sunbathing nude": "Sunbathing_nude",
-            "Skinny dipping": "Skinny_dipping",
-            "Cruising": "Cruising",
-            "Beach sex": "Beach_sex",
-            "Short clips (1-3 mins)": "Short_clips_1_3_mins",
-            "Medium (5-10 mins)": "Medium_5_10_mins",
-            "Long (15+ mins)": "Long_15_mins",
-            "Full scenes (30+ mins)": "Full_scenes_30_mins",
-            "Daily": "Daily",
-            "A few times a week": "A_few_times_a_week",
-            "Weekly": "Weekly",
-            "Less often": "Less_often",
-            "OnlyFans": "OnlyFans",
-            "JustForFans": "JustForFans",
-            "Twitter/X": "Twitter_X",
-            "Tube sites": "Tube_sites"
-        };
-
-        // Update Firebase data
-        async function updateFirebaseData(questionKey, answerKey) {
-            try {
-                const questionRef = ref(database, `/questions/${questionKey}/${answerKey}`);
-                const submissionRef = ref(database, `/submissions/${questionKey}`);
-
-                await set(questionRef, increment(1));
-                await set(submissionRef, increment(1));
-
-                console.log('Data updated successfully');
-            } catch (error) {
-                console.error('Error updating data:', error);
-            }
+    function toggleChat() {
+      if (isChatOpen) {
+        chatbox.style.display = 'none';
+        isChatOpen = false;
+      } else {
+        chatbox.style.display = 'flex';
+        isChatOpen = true;
+        chatPreview.style.display = 'none';
+        if (messages.children.length === 0) {
+          displayQuestion('start');
         }
+      }
+    }
 
-        // Update total submissions
-        async function updateTotalSubmissions() {
-            try {
-                const totalRef = ref(database, '/submissions/total');
-                await set(totalRef, increment(1));
-                console.log('Total submissions incremented');
-            } catch (error) {
-                console.error('Error updating total submissions:', error);
-            }
-        }
+    function displayQuestion(key) {
+      currentStep = key;
+      const step = conversationFlow[key];
+      addMessage('Toolbinge: ' + step.question, 'bot');
 
-        // Modify the selectAnswer function to update Firebase
-        const originalSelectAnswer = window.selectAnswer;
-        window.selectAnswer = async function(next, answer) {
-            originalSelectAnswer(next, answer);
-
-            const questionKey = questionKeyMap[conversationFlow[currentStep].question];
-            const answerKey = answerKeyMap[answer];
-
-            await updateFirebaseData(questionKey, answerKey);
-
-            if (next === 'end') {
-                await updateTotalSubmissions();
-            }
+      options.innerHTML = '';
+      step.answers.forEach(answer => {
+        const button = document.createElement('button');
+        button.innerText = answer.text;
+        button.onclick = (event) => {
+          event.stopPropagation();
+          selectAnswer(answer.next, answer.text);
         };
-    </script>
-</body>
-</html>        frequency: {question: "What's your preferred video length?",
+        options.appendChild(button);
+      });
+    }
+
+    async function selectAnswer(next, answer) {
+      addMessage('You: ' + answer, 'user');
+      userSelections.push({
+        question: conversationFlow[currentStep].question,
+        answer: answer
+      });
+
+      const questionKey = questionKeyMap[conversationFlow[currentStep].question];
+      const answerKey = answerKeyMap[answer];
+
+      try {
+        const questionRef = ref(database, `/questions/${questionKey}/${answerKey}`);
+        const submissionRef = ref(database, `/submissions/${questionKey}`);
+
+        await set(questionRef, increment(1));
+        await set(submissionRef, increment(1));
+
+        console.log('Data updated successfully');
+
+        if (next === 'end') {
+          const totalRef = ref(database, '/submissions/total');
+          await set(totalRef, increment(1));
+          console.log('Total submissions incremented');
+          console.log(JSON.stringify(userSelections));
+        }
+      } catch (error) {
+        console.error('Error updating data:', error);
+      }
+
+      displayQuestion(next);
+    }
+
+    function addMessage(message, sender) {
+      const messageElement = document.createElement('div');
+      messageElement.innerText = message;
+      messageElement.className = sender + '-message';
+      messages.appendChild(messageElement);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function sendGAEvent(category, action) {
+      if (typeof gtag === 'function') {
+        gtag('event', action, {
+          'event_category': category,
+          'event_label': window.location.href
+        });
+      }
+    }
+
+    chatBubble.addEventListener('click', function(event) {
+      event.stopPropagation();
+      toggleChat();
+
+      // Check if the chat has been opened for the first time
+      if (!isChatOpened) {
+        isChatOpened = true;
+        sendGAEvent('chatbot', 'open');
+      }
+    });
+
+    document.addEventListener('click', function(event) {
+      if (isChatOpen && !chatbox.contains(event.target) && event.target !== chatBubble) {
+        toggleChat();
+      }
+    });
+
+    chatbox.addEventListener('click', function(event) {
+      event.stopPropagation();
+    });
+
+    // Start the chat preview when the page loads
+    showChatPreview();
+  });
+</script><script type="module">
+	  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+	  import { getDatabase, ref, set, increment } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+	  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-analytics.js";
+
+	  const firebaseConfig = {
+		apiKey: "AIzaSyDqxLlCOORTmcxCdKtou4zKJudQRs8zTZg",
+		authDomain: "toolbinge-log.firebaseapp.com",
+		projectId: "toolbinge-log",
+		storageBucket: "toolbinge-log.appspot.com",
+		messagingSenderId: "850284736934",
+		appId: "1:850284736934:web:1615930d17979b23c39f67",
+		measurementId: "G-KBX7C0XS8E"
+	  };
+
+	  // Initialize Firebase
+	  const app = initializeApp(firebaseConfig);
+	  const analytics = getAnalytics(app);
+	  const database = getDatabase(app);
+
+	  document.addEventListener('DOMContentLoaded', function() {
+		const chatBubble = document.getElementById('chatBubble');
+		const chatPreview = document.getElementById('chatPreview');
+		const chatbox = document.getElementById('chatbox');
+		const messages = document.getElementById('messages');
+		const options = document.getElementById('options');
+		let currentStep = 'start';
+		let userSelections = [];
+		let isChatOpen = false;
+
+		const questionKeyMap = {
+		  "What type of content makes you cum the hardest?": "What_type_of_content_makes_you_cum_the_hardest",
+		  "What kind of public fun turns you on the most?": "What_kind_of_public_fun_turns_you_on_the_most",
+		  "What aspect of throat fucking excites you?": "What_aspect_of_throat_fucking_excites_you",
+		  "What's your favorite part of bareback action?": "What's_your_favorite_part_of_bareback_action",
+		  "Where do you prefer to see cumshots?": "Where_do_you_prefer_to_see_cumshots",
+		  "What natural setting gets you most excited?": "What_natural_setting_gets_you_most_excited",
+		  "What crowded place turns you on the most?": "What_crowded_place_turns_you_on_the_most",
+		  "Which form of public transport excites you most?": "Which_form_of_public_transport_excites_you_most",
+		  "What's your favorite beach activity?": "What's_your_favorite_beach_activity",
+		  "What's your preferred video length?": "What's_your_preferred_video_length",
+		  "How often do you use X?": "How_often_do_you_use_X",
+		  "Where do you prefer to watch content?": "Where_do_you_prefer_to_watch_content"
+		};
+
+		const answerKeyMap = {
+		  "Public fun": "Public_fun",
+		  "Throat fuck": "Throat_fuck",
+		  "Bareback": "Bareback",
+		  "Cumshots": "Cumshots",
+		  "Nature": "Nature",
+		  "Crowds": "Crowds",
+		  "Public transport": "Public_transport",
+		  "Beaches": "Beaches",
+		  "Gagging sounds": "Gagging_sounds",
+		  "Deepthroat": "Deepthroat",
+		  "Face fucking": "Face_fucking",
+		  "Throat bulge": "Throat_bulge",
+		  "Raw feeling": "Raw_feeling",
+		  "Creampies": "Creampies",
+		  "Breeding": "Breeding",
+		  "Seed swapping": "Seed_swapping",
+		  "Face": "Face",
+		  "Chest": "Chest",
+		  "Ass": "Ass",
+		  "Mouth": "Mouth",
+		  "Forests": "Forests",
+		  "Mountains": "Mountains",
+		  "Rivers/Lakes": "Rivers_Lakes",
+		  "Fields": "Fields",
+		  "Clubs": "Clubs",
+		  "Parks": "Parks",
+		  "Sporting events": "Sporting_events",
+		  "Bus": "Bus",
+		  "Train": "Train",
+		  "Subway": "Subway",
+		  "Airplane": "Airplane",
+		  "Sunbathing nude": "Sunbathing_nude",
+		  "Skinny dipping": "Skinny_dipping",
+		  "Cruising": "Cruising",
+		  "Beach sex": "Beach_sex",
+		  "Short clips (1-3 mins)": "Short_clips_1_3_mins",
+		  "Medium (5-10 mins)": "Medium_5_10_mins",
+		  "Long (15+ mins)": "Long_15_mins",
+		  "Full scenes (30+ mins)": "Full_scenes_30_mins",
+		  "Daily": "Daily",
+		  "A few times a week": "A_few_times_a_week",
+		  "Weekly": "Weekly",
+		  "Less often": "Less_often",
+		  "OnlyFans": "OnlyFans",
+		  "JustForFans": "JustForFans",
+		  "Twitter/X": "Twitter_X",
+		  "Tube sites": "Tube_sites"
+		};
+
+		const conversationFlow = {
+		  start: {
+			question: "What type of content makes you cum the hardest?",
+			answers: [
+			  { text: "Public fun", next: "public_fun" },
+			  { text: "Throat fuck", next: "throat_fuck" },
+			  { text: "Bareback", next: "bareback" },
+			  { text: "Cumshots", next: "cumshots" },
+			]
+		  },
+		  public_fun: {
+			question: "What kind of public fun turns you on the most?",
+			answers: [
+			  { text: "Nature", next: "nature" },
+			  { text: "Crowds", next: "crowds" },
+			  { text: "Public transport", next: "public_transport" },
+			  { text: "Beaches", next: "beaches" }
+			]
+		  },
+		  throat_fuck: {
+			question: "What aspect of throat fucking excites you?",
+			answers: [
+			  { text: "Gagging sounds", next: "preferences" },
+			  { text: "Deepthroat", next: "preferences" },
+			  { text: "Face fucking", next: "preferences" },
+			  { text: "Throat bulge", next: "preferences" }
+			]
+		  },
+		  bareback: {
+			question: "What's your favorite part of bareback action?",
+			answers: [
+			  { text: "Raw feeling", next: "preferences" },
+			  { text: "Creampies", next: "preferences" },
+			  { text: "Breeding", next: "preferences" },
+			  { text: "Seed swapping", next: "preferences" }
+			]
+		  },
+		  cumshots: {
+			question: "Where do you prefer to see cumshots?",
+			answers: [
+			  { text: "Face", next: "preferences" },
+			  { text: "Chest", next: "preferences" },
+			  { text: "Ass", next: "preferences" },
+			  { text: "Mouth", next: "preferences" }
+			]
+		  },
+		  nature: {
+			question: "What natural setting gets you most excited?",
+			answers: [
+			  { text: "Forests", next: "preferences" },
+			  { text: "Mountains", next: "preferences" },
+			  { text: "Rivers/Lakes", next: "preferences" },
+			  { text: "Fields", next: "preferences" }
+			]
+		  },
+		  crowds: {
+			question: "What crowded place turns you on the most?",
+			answers: [
+			  { text: "Clubs", next: "preferences" },
+			  { text: "Beaches", next: "preferences" },
+			  { text: "Parks", next: "preferences" },
+			  { text: "Sporting events", next: "preferences" }
+			]
+		  },
+		  public_transport: {
+			question: "Which form of public transport excites you most?",
+			answers: [
+			  { text: "Bus", next: "preferences" },
+			  { text: "Train", next: "preferences" },
+			  { text: "Subway", next: "preferences" },
+			  { text: "Airplane", next: "preferences" }
+			]
+		  },
+		  beaches: {
+			question: "What's your favorite beach activity?",
+			answers: [
+			  { text: "Sunbathing nude", next: "preferences" },
+			  { text: "Skinny dipping", next: "preferences" },
+			  { text: "Cruising", next: "preferences" },
+			  { text: "Beach sex", next: "preferences" }
+			]
+		  },
+		  preferences: {
+			question: "What's your preferred video length?",
 			answers: [
 			  { text: "Short clips (1-3 mins)", next: "frequency" },
 			  { text: "Medium (5-10 mins)", next: "frequency" },
